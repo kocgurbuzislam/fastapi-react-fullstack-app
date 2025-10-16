@@ -38,6 +38,12 @@ label {
   color: #555;
   font-size: 14px;
   font-weight: 500;
+  margin-right: 400px;
+}
+
+.todo-item form {
+  display: flex;
+  justify-content: space-between;
 }
 
 input[type="text"] {
@@ -67,6 +73,28 @@ button {
   font-weight: 500;
 }
 
+.delete-button {
+  background-color: #d9534f;
+  margin-left: 10px;
+  cursor: pointer;
+  color: white;
+  border: none;
+}
+
+.update-button {
+  background-color: #1030b3;
+  margin-left: 35px;
+
+  cursor: pointer;
+  color: white;
+  margin-left: 5px;
+  border: none;
+}
+.todo-item input{
+    border: none;
+    background-color: transparent;
+}
+
 button:hover {
   background-color: #4cae4c;
 }
@@ -87,6 +115,8 @@ li {
   color: #333;
   font-size: 16px;
   transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
 }
 
 li:hover {

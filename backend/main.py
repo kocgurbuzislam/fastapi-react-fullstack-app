@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from database import SessionLocal, engine 
 from models import ToDo, Base
 from pydantic import BaseModel
@@ -43,3 +43,37 @@ def create_todo(new_todo: ToDoCreate ,db = Depends(get_db)):
     db.add(db_todo)
     db.commit()
     return {"message": "ToDo created successfully"}
+
+
+class ToDoUpdate(BaseModel):
+    title: str
+
+@app.put("/todos/{todo_id}")
+def update_todo(
+    todo_id: int,
+    request_data: ToDoUpdate,
+    db=Depends(get_db)
+):
+    todo_item = db.query(ToDo).filter(ToDo.id == todo_id).first()
+
+    if not todo_item:
+        raise HTTPException(status_code=404, detail="ToDo not found")
+    
+    todo_item.title = request_data.title
+    db.add(todo_item)
+    db.commit()
+    return {"message": "ToDo updated successfully"}
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(
+    todo_id: int,
+    db=Depends(get_db)
+):
+    todo_item = db.query(ToDo).filter(ToDo.id == todo_id).first()
+
+    if not todo_item:
+        raise HTTPException(status_code=404, detail="ToDo not found")
+    
+    db.delete(todo_item)
+    db.commit()
+    return {"message": "ToDo deleted successfully"}
