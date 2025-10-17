@@ -6,18 +6,30 @@ function App() {
 
   const [value, setValue] = useState("");
   const [toDos, setToDos] = useState([]);
+  const [editValues, setEditValues] = useState({});
 
 
   function handleNewToDo() {
 
     if (value === "") return;
     axios.post("http://localhost:8000/todos", { title: value })
-      .then(() => fetchToDos())
+      .then(() => {
+        fetchToDos();
+        setValue("");
+      });
 
   }
 
   function fetchToDos() {
-    axios.get("http://localhost:8000/todos").then((res) => setToDos(res.data))
+    axios.get("http://localhost:8000/todos").then((res) => {
+      setToDos(res.data);
+      // Her todo için başlangıç değerlerini ayarla
+      const initialValues = {};
+      res.data.forEach(item => {
+        initialValues[item.id] = item.title;
+      });
+      setEditValues(initialValues);
+    });
   }
 
   function deleteToDo(id) {
@@ -32,14 +44,20 @@ function App() {
 
   function updateToDo(id, e) {
     e.preventDefault();
-    if (!window.confirm("Bu kaydı değiştirmek istediğinize emin misiniz?")) {
+
+    if (!window.confirm("Bu kaydı güncellemek istediğinize emin misiniz?")) {
       return;
     }
 
-    axios.put(`http://localhost:8000/todos/${id}`, { title: e.target[0].value }).then(() => fetchToDos())
+    axios.put(`http://localhost:8000/todos/${id}`, { title: editValues[id] }).then(() => fetchToDos())
 
-    
+  }
 
+  function handleEditChange(id, newValue) {
+    setEditValues(prev => ({
+      ...prev,
+      [id]: newValue
+    }));
   }
 
   useEffect(() => {
@@ -51,7 +69,7 @@ function App() {
 
       <h1>My To Do App</h1>
       <label>Yeni To Do Oluştur:</label>
-      <input type="text" onChange={(e) => setValue(e.target.value)} />
+      <input type="text" value={value} onChange={(e) => setValue(e.target.value)} />
       <button onClick={handleNewToDo}>Ekle</button>
 
 
@@ -62,12 +80,15 @@ function App() {
 
               <form onSubmit={(e) => updateToDo(item.id, e)}>
 
-                <input defaultValue={item.title} ></input>
+                <input 
+                  value={editValues[item.id] || ''} 
+                  onChange={(e) => handleEditChange(item.id, e.target.value)}
+                />
                 <div>
 
                   <button type="submit" className='update-button'>Kaydet</button>
 
-                  <button className='delete-button' onClick={() => deleteToDo(item.id)}>Sil</button>
+                  <button type="button" className='delete-button' onClick={() => deleteToDo(item.id)}>Sil</button>
 
 
                 </div>
